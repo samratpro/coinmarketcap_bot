@@ -46,57 +46,109 @@ def content_generator_loop(api_key, profile_id, file_path, like, follow, comment
 
             page.goto("https://coinmarketcap.com/", timeout=60000)
             page.wait_for_load_state("load")
+
             # click login
-            page.locator("//button[normalize-space()='Log In']").click()
+            try:
+                page.locator("//button[normalize-space()='Log In']").click()
+            except:
+                pass
+
             # wait for login field
+
             page.wait_for_selector("(//input[contains(@placeholder,'Enter your email address...')])[1]")
             # insert email
             page.locator("(//input[contains(@placeholder,'Enter your email address...')])[1]").type(email)
             # Insert password
             page.locator("(//input[contains(@placeholder,'Enter your password...')])[1]").type(password)
             # click login button
-            page.locator("(//button[@class='sc-65e7f566-0 eQBACe BaseButton_base__34gwo bt-base BaseButton_t-default__8BIzz BaseButton_size-md__9TpuT BaseButton_v-primary__gkWpJ BaseButton_vd__gUkWt BaseButton_full-width__AlbZn'])[2]").click()
+            page.locator(
+                "(//button[@class='sc-65e7f566-0 eQBACe BaseButton_base__34gwo bt-base BaseButton_t-default__8BIzz BaseButton_size-md__9TpuT BaseButton_v-primary__gkWpJ BaseButton_vd__gUkWt BaseButton_full-width__AlbZn'])[2]").click()
             sleep(2)
-            page.wait_for_selector("//div[@class='avatar-img']")
+            login = "Fail"
+            try:
+                page.wait_for_selector("//div[@class='avatar-img']")
+                login = "Success"
+                log.insert(END, 'Login Done..\n')
+                print("Login Done..")
+            except:
+                pass
 
             # Go to target page
-            page.goto(post_url, timeout=60000)
-            page.wait_for_load_state("load")
-            sleep(3)
-
-            # follow
-            if follow == "Yes":
-                page.locator("//div[@class='sc-65e7f566-0 sc-d8997efc-0 eQBACe nBTGy post-option']//button[@class='sc-65e7f566-0 eQBACe BaseButton_base__34gwo bt-base BaseButton_t-default__8BIzz BaseButton_size-sm__oHKNE BaseButton_v-primary__gkWpJ BaseButton_vd__gUkWt follow-btn unfollow']").click()
-                try:
-                    page.locator("//button[normalize-space()='Save']").click()
-                except:
-                    pass
+            if login == "Success":
+                page.goto(post_url, timeout=60000)
+                page.wait_for_load_state("load")
                 sleep(3)
 
-            # like
-            if like == "Yes":
-                page.locator("//div[@id='EmojiSelectContainer-338594495']//div[contains(@class,'sc-65e7f566-0 sc-b7a6d103-0 eQBACe FMOQp emoji-list-item emoji-list-item-2')]").click()
-                sleep(3)
+                # follow
+                if follow == "Yes":
+                    try:
+                        page.locator(
+                            "//div[@class='sc-65e7f566-0 sc-d8997efc-0 eQBACe nBTGy post-option']//button[@class='sc-65e7f566-0 eQBACe BaseButton_base__34gwo bt-base BaseButton_t-default__8BIzz BaseButton_size-sm__oHKNE BaseButton_v-primary__gkWpJ BaseButton_vd__gUkWt follow-btn unfollow']").click()
+                        log.insert(END, 'Follow Done..\n')
+                        print("Follow Done..")
+                    except:
+                        pass
+                    # save profile
+                    try:
+                        page.locator("//button[normalize-space()='Save']").click()
+                    except:
+                        pass
+                    sleep(1)
 
-            # comment
-            if comment_status == "Yes":
-                page.locator("(//div[contains(@role,'textbox')])[1]").type(comment)
-            sleep(3)
-            # post comment
-            page.locator("(//button[contains(@class,'sc-65e7f566-0 eQBACe BaseButton_base__34gwo bt-base BaseButton_t-default__8BIzz BaseButton_size-md__9TpuT BaseButton_v-primary__gkWpJ BaseButton_vd__gUkWt')])[1]").click()
-            sleep(3)
+                # like
+                if like == "Yes":
+                    try:
+                        page.locator("(//div[@class='animation-box LIKE'])[1]").click()
+                        print("Done Love Thumbs up..")
+                        log.insert(END, 'Done Love Thumbs up..\n')
+                    except:
+                        log.insert(END, 'Fail to Love Thumbs up..\n')
+                        print("Fail to Love Thumbs up..")
+                    sleep(1)
+                    try:
+                        page.locator("(//div[@class='animation-box GOOD'])[1]").click()
+                        print("Done Like Thumbs up..")
+                        log.insert(END, 'Done Likee Thumbs up..\n')
+                    except:
+                        log.insert(END, 'Fail to Like Thumbs up..\n')
+                        print("Fail to Like Thumbs up..")
+                    sleep(1)
 
-            # click and hold profile
-            profile = page.locator("//div[@class='sc-5438cb4a-0 ehFKAE']")
-            profile.click()
+                # comment
+                if comment_status == "Yes":
+                    locator = page.locator("(//div[@role='textbox'])[1]")
+                    sleep(0.5)
+                    locator.type("  " + comment, delay=100)
+                    sleep(0.5)
+                    page.locator("//div[@class='sc-4c05d6ef-0 dlQYLv comment-input-wrapper']//button[@class='sc-65e7f566-0 eQBACe BaseButton_base__34gwo bt-base BaseButton_t-default__8BIzz BaseButton_size-md__9TpuT BaseButton_v-primary__gkWpJ BaseButton_vd__gUkWt']").click()
+                    log.insert(END, 'Comment Done..\n')
+                    print("Comment Done..")
 
-            sleep(3)
-            # singout
-            page.locator("(//div[contains(@class,'cmc-profile-popover__option')])[5]").click()
-            sleep(2)
-            page.stop()
+                    # save profile
+                    try:
+                        page.locator("//button[normalize-space()='Save']").click()
+                    except:
+                        pass
+                    sleep(1)
+
+                # # click and hold profile
+                # try:
+                #     profile = page.locator("//div[@class='sc-5438cb4a-0 ehFKAE']")
+                #     profile.click()
+                #     sleep(3)
+                #     # singout
+                #     page.locator("(//div[contains(@class,'cmc-profile-popover__option')])[5]").click()
+                #     sleep(2)
+                # except:
+                #     pass
+            else:
+                print("Login Failed")
+                log.insert(END, 'Login Failed\n')
+
+            browser.close()
             gl.stop()
             log.insert(END, f'Number : {str(post_run)} completed...\n\n\n')
+
         post_run += 1
 
 

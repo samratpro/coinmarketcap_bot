@@ -171,9 +171,6 @@ def operation_start_thread():
     get_like = Like.get()
     get_follow = Follow.get()
     get_comment = Comment.get()
-    print(get_api_key)
-    print(get_profile_id)
-    print(get_file_path)
     content_generator_loop(get_api_key, get_profile_id, get_file_path, get_like, get_follow, get_comment, log)
 
 
