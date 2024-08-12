@@ -27,25 +27,25 @@ def content_generator_loop(api_key, profile_id, file_path, like, follow, comment
 
     post_run = 1
     while post_run < len(dicts):
-        email = dicts[post_run]['email']
-        password = dicts[post_run]['password']
-        post_url = dicts[post_run]['post']
-        comment = dicts[post_run]['comment']
-
-        log.insert(END, f'Working Number : {str(post_run)}\n\n')
-        log.insert(END, f'Email : {email}\n')
-        log.insert(END, f'Password : {password}\n')
-        log.insert(END, f'Post_Url : {post_url}\n')
-        log.insert(END, f'Comment : {comment}\n')
-
         with sync_playwright() as p:
             debugger_address = gl.start()
             browser = p.chromium.connect_over_cdp("http://" + debugger_address)
             default_context = browser.contexts[0]
             page = default_context.pages[0]
 
-            page.goto("https://coinmarketcap.com/", timeout=60000)
-            page.wait_for_load_state("load")
+            email = dicts[post_run]['email']
+            password = dicts[post_run]['password']
+            post_url = dicts[post_run]['post']
+            comment = dicts[post_run]['comment']
+
+            log.insert(END, f'Working Number : {str(post_run)}\n\n')
+            log.insert(END, f'Email : {email}\n')
+            log.insert(END, f'Password : {password}\n')
+            log.insert(END, f'Post_Url : {post_url}\n')
+            log.insert(END, f'Comment : {comment}\n')
+
+            page.goto(post_url)
+            page.wait_for_selector("//button[normalize-space()='Log In']")
 
             # click login
             try:
@@ -61,9 +61,7 @@ def content_generator_loop(api_key, profile_id, file_path, like, follow, comment
             # Insert password
             page.locator("(//input[contains(@placeholder,'Enter your password...')])[1]").type(password)
             # click login button
-            page.locator(
-                "(//button[@class='sc-65e7f566-0 eQBACe BaseButton_base__34gwo bt-base BaseButton_t-default__8BIzz BaseButton_size-md__9TpuT BaseButton_v-primary__gkWpJ BaseButton_vd__gUkWt BaseButton_full-width__AlbZn'])[2]").click()
-            sleep(2)
+            page.locator("//button[@class='sc-65e7f566-0 eQBACe BaseButton_base__34gwo bt-base BaseButton_t-default__8BIzz BaseButton_size-md__9TpuT BaseButton_v-primary__gkWpJ BaseButton_vd__gUkWt BaseButton_full-width__AlbZn']").click()
             login = "Fail"
             try:
                 page.wait_for_selector("//div[@class='avatar-img']")
@@ -77,7 +75,6 @@ def content_generator_loop(api_key, profile_id, file_path, like, follow, comment
             if login == "Success":
                 page.goto(post_url, timeout=60000)
                 page.wait_for_load_state("load")
-                sleep(3)
 
                 # follow
                 if follow == "Yes":
@@ -93,7 +90,6 @@ def content_generator_loop(api_key, profile_id, file_path, like, follow, comment
                         page.locator("//button[normalize-space()='Save']").click()
                     except:
                         pass
-                    sleep(1)
 
                 # like
                 if like == "Yes":
@@ -104,22 +100,12 @@ def content_generator_loop(api_key, profile_id, file_path, like, follow, comment
                     except:
                         log.insert(END, 'Fail to Love Thumbs up..\n')
                         print("Fail to Love Thumbs up..")
-                    sleep(1)
-                    try:
-                        page.locator("(//div[@class='animation-box GOOD'])[1]").click()
-                        print("Done Like Thumbs up..")
-                        log.insert(END, 'Done Likee Thumbs up..\n')
-                    except:
-                        log.insert(END, 'Fail to Like Thumbs up..\n')
-                        print("Fail to Like Thumbs up..")
-                    sleep(1)
 
                 # comment
                 if comment_status == "Yes":
                     locator = page.locator("(//div[@role='textbox'])[1]")
                     sleep(0.5)
                     locator.type("  " + comment, delay=100)
-                    sleep(0.5)
                     page.locator("//div[@class='sc-4c05d6ef-0 dlQYLv comment-input-wrapper']//button[@class='sc-65e7f566-0 eQBACe BaseButton_base__34gwo bt-base BaseButton_t-default__8BIzz BaseButton_size-md__9TpuT BaseButton_v-primary__gkWpJ BaseButton_vd__gUkWt']").click()
                     log.insert(END, 'Comment Done..\n')
                     print("Comment Done..")
@@ -129,27 +115,19 @@ def content_generator_loop(api_key, profile_id, file_path, like, follow, comment
                         page.locator("//button[normalize-space()='Save']").click()
                     except:
                         pass
-                    sleep(1)
 
-                # # click and hold profile
-                # try:
-                #     profile = page.locator("//div[@class='sc-5438cb4a-0 ehFKAE']")
-                #     profile.click()
-                #     sleep(3)
-                #     # singout
-                #     page.locator("(//div[contains(@class,'cmc-profile-popover__option')])[5]").click()
-                #     sleep(2)
-                # except:
-                #     pass
             else:
                 print("Login Failed")
                 log.insert(END, 'Login Failed\n')
 
-            browser.close()
-            gl.stop()
             log.insert(END, f'Number : {str(post_run)} completed...\n\n\n')
 
+            browser.close()
+            gl.stop()
+        log.insert(END, f'1 second delay to clear profile data..\n\n')
+        sleep(1)
         post_run += 1
+
 
 
 
